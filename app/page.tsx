@@ -1,65 +1,123 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import Logo from "@/components/ui/Logo";
+import DoodleBg from "@/components/ui/DoodleBg";
+import DoodleButton from "@/components/ui/DoodleButton";
+import StickyCard from "@/components/ui/StickyCard";
+import WobbleInput from "@/components/ui/WobbleInput";
+import DoodleAvatar from "@/components/ui/DoodleAvatar";
+import { getIdentity, randomAvatarSeed, saveIdentity } from "@/lib/identity";
 
 export default function Home() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [seed, setSeed] = useState("start");
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = getIdentity();
+    if (id) {
+      setName(id.name);
+      setSeed(id.avatarSeed || randomAvatarSeed());
+    } else {
+      setSeed(randomAvatarSeed());
+    }
+    setReady(true);
+  }, []);
+
+  const go = (path: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    saveIdentity({ name: trimmed.slice(0, 20), avatarSeed: seed });
+    router.push(path);
+  };
+
+  const canGo = name.trim().length > 0;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="relative flex min-h-dvh flex-col items-center justify-center px-5 py-10">
+      <DoodleBg />
+
+      <div className="mb-2 text-center">
+        <Logo />
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="font-scribble mt-3 text-xl text-ink-soft"
+        >
+          Everyone sketches the secret word… except the imposters. 🕵️
+        </motion.p>
+      </div>
+
+      <StickyCard color="paper" tilt={-1} seed={21} className="mt-6 w-full max-w-sm">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-end gap-3">
+            <motion.div
+              key={seed}
+              initial={{ scale: 0.7, rotate: -12 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 260, damping: 12 }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <DoodleAvatar seed={seed} size={80} />
+            </motion.div>
+            <button
+              onClick={() => setSeed(randomAvatarSeed())}
+              className="font-display mb-1 cursor-pointer rounded-full px-2 py-1 text-lg text-ink-soft transition hover:rotate-12 hover:text-crayon-purple"
+              aria-label="Shuffle avatar"
+              title="Shuffle avatar"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              🎲
+            </button>
+          </div>
+
+          <WobbleInput
+            aria-label="Your name"
+            placeholder="Your name…"
+            value={name}
+            maxLength={20}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && go("/create")}
+            className="w-full"
+            seed={9}
+          />
+
+          <div className="mt-1 flex w-full flex-col gap-3">
+            <DoodleButton
+              variant="green"
+              size="lg"
+              block
+              disabled={!canGo}
+              seed={31}
+              onClick={() => go("/create")}
+            >
+              ✏️ Create Room
+            </DoodleButton>
+            <DoodleButton
+              variant="blue"
+              size="lg"
+              block
+              disabled={!canGo}
+              seed={44}
+              onClick={() => go("/join")}
+            >
+              🚪 Join Room
+            </DoodleButton>
+          </div>
+          {!canGo && ready && (
+            <p className="font-hand text-base text-ink-soft/70">
+              Pick a name to start ↑
+            </p>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </StickyCard>
+
+      <p className="font-hand mt-8 text-center text-base text-ink-soft/70">
+        3+ players · draw · bluff · vote · repeat
+      </p>
+    </main>
   );
 }

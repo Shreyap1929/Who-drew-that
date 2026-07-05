@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------
+   Who Drew That? — Doodle / retro-arcade design system
+   --------------------------------------------------------------- */
+
+@theme {
+  /* Surfaces */
+  --color-paper: #fbf3e2;
+  --color-paper-deep: #f3e7cc;
+  --color-ink: #2b2a28;
+  --color-ink-soft: #5b5750;
+
+  /* Crayon palette */
+  --color-crayon-red: #ff5a5f;
+  --color-crayon-coral: #ff8c66;
+  --color-crayon-yellow: #ffcf3f;
+  --color-crayon-green: #4ac29a;
+  --color-crayon-teal: #2fb8c6;
+  --color-crayon-blue: #4a90e2;
+  --color-crayon-purple: #9b7bea;
+  --color-crayon-pink: #ff7eb6;
+
+  /* Sticky-note fills */
+  --color-note-yellow: #fff3a8;
+  --color-note-pink: #ffc7d6;
+  --color-note-blue: #bfe3ff;
+  --color-note-green: #c7f0c2;
+
+  --font-display: var(--font-display), system-ui, sans-serif;
+  --font-hand: var(--font-hand), "Comic Sans MS", cursive;
+  --font-scribble: var(--font-scribble), cursive;
+
+  --shadow-sticker: 3px 4px 0 rgba(43, 42, 40, 0.85);
+  --shadow-sticker-lg: 6px 7px 0 rgba(43, 42, 40, 0.85);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Paper background: warm cream + faint grid + grain */
+.paper-bg {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(rgba(43, 42, 40, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(43, 42, 40, 0.04) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-hand);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Chunky doodle headings */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-scribble {
+  font-family: var(--font-scribble);
+}
+
+/* Slight hand-placed wobble utilities */
+.wobble-1 {
+  transform: rotate(-1.4deg);
+}
+.wobble-2 {
+  transform: rotate(1.8deg);
+}
+.wobble-3 {
+  transform: rotate(-0.8deg);
+}
+
+/* Marker text-stroke-ish shadow for big titles */
+.title-pop {
+  text-shadow:
+    2px 2px 0 rgba(43, 42, 40, 0.15),
+    -1px -1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Masking-tape strip for taped-on-paper look */
+.tape {
+  position: absolute;
+  width: 74px;
+  height: 26px;
+  background: rgba(255, 233, 150, 0.72);
+  box-shadow: 0 1px 2px rgba(43, 42, 40, 0.18);
+  backdrop-filter: blur(0.5px);
+}
+.tape::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.25) 0 2px,
+    transparent 2px 6px
+  );
+  opacity: 0.5;
+}
+
+/* Focus ring that fits the crayon vibe */
+:focus-visible {
+  outline: 3px dashed var(--color-crayon-purple);
+  outline-offset: 3px;
+}
+
+/* Reduced motion friendliness */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
